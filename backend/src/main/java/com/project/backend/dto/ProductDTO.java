@@ -5,6 +5,7 @@ import java.util.List;
 public class ProductDTO {
     private String name;
     private Double price;
+    private String unit;
     private Integer stock;
     private Boolean available;
     private Long sellerId;
@@ -26,6 +27,14 @@ public class ProductDTO {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 
     public Integer getStock() {

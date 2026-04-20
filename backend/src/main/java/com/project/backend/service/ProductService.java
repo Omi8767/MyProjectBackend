@@ -31,6 +31,7 @@ public class ProductService {
         Product product = new Product();
         product.setName(productDTO.getName());
         product.setPrice(productDTO.getPrice());
+        product.setUnit(productDTO.getUnit());
         product.setStock(productDTO.getStock());
         product.setAvailable(productDTO.getAvailable()!=null?productDTO.getAvailable():true);
 
@@ -87,8 +88,6 @@ public class ProductService {
 
     }
 
-
-
 //  UPADTE
     public ResponseEntity<?> update(Long id,ProductDTO productDTO){
         Optional<Product> byId = productRepository.findById(id);
@@ -96,6 +95,7 @@ public class ProductService {
             Product product = byId.get();
             product.setName(productDTO.getName());
             product.setPrice(productDTO.getPrice());
+            product.setUnit(productDTO.getUnit());
             product.setStock(productDTO.getStock());
             product.setAvailable(productDTO.getAvailable());
 
@@ -178,5 +178,9 @@ public class ProductService {
         return new ResponseEntity<>("Product not found",HttpStatus.NOT_FOUND);
     }
 
+    public ResponseEntity<List<Product>> getBySellerId(Long id){
+        List<Product> bySellerId = productRepository.findBySeller_Id(id);
+        return ResponseEntity.ok(bySellerId);
+    }
 
 }

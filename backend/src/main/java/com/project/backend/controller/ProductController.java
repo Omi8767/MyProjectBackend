@@ -42,5 +42,10 @@ public class ProductController {
         return productService.getById(id);
     }
 
+    @GetMapping("/seller/{id}")
+    public ResponseEntity<?> getBySellerId(@PathVariable Long id){
+        return productService.getBySellerId(id);
+    }
+
 
 }
