@@ -47,5 +47,10 @@ public class ProductController {
         return productService.getBySellerId(id);
     }
 
+    @GetMapping("/")
+    public ResponseEntity<List<Product>> getByCategoryId(@PathVariable Long id){
+        return productService.getByCategoryId(id);
+    }
+
 
 }

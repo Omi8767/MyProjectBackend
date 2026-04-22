@@ -183,4 +183,9 @@ public class ProductService {
         return ResponseEntity.ok(bySellerId);
     }
 
+    public ResponseEntity<List<Product>> getByCategoryId(Long id){
+        List<Product> byCategoryId = productRepository.findByCategory_Id(id);
+        return ResponseEntity.ok(byCategoryId);
+    }
+
 }
