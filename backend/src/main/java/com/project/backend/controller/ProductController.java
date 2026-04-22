@@ -47,7 +47,7 @@ public class ProductController {
         return productService.getBySellerId(id);
     }
 
-    @GetMapping("/")
+    @GetMapping("/category/{id}")
     public ResponseEntity<List<Product>> getByCategoryId(@PathVariable Long id){
         return productService.getByCategoryId(id);
     }
