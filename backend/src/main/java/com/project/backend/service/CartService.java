@@ -9,6 +9,7 @@ import com.project.backend.repository.CustomerRepository;
 import com.project.backend.repository.ProductRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -76,11 +77,11 @@ public class CartService {
 //        cartRepository.deleteById(customerid);
 //    }
 
-    public ResponseEntity<?> deleteById(Long customerid){
+    public void deleteById(Long customerid){
         cartRepository.deleteById(customerid);
-        return ResponseEntity.ok().body(Map.of("message","Cart Removed Successfully..."));
     }
 
+    @Transactional
     public void clearCart(Long customerId){
         cartRepository.deleteByCustomer_Id(customerId);
     }
