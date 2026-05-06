@@ -29,4 +29,20 @@ public class EmailService {
             e.printStackTrace();
         }
     }
+
+    @Async
+    public void sendSimpleEmail(String to,String subject,String body){
+        try{
+            MimeMessage msg = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(msg,false);
+
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, false);
+
+            mailSender.send(msg);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
 }

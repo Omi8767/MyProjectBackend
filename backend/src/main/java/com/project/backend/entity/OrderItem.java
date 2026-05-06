@@ -1,9 +1,6 @@
 package com.project.backend.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class OrderItem {
@@ -16,6 +13,8 @@ public class OrderItem {
     private Double price;
     private Double total;
     private Long sellerId;
+    @Lob
+    private String imageUrl;
 
     public Long getId() {
         return id;
@@ -71,5 +70,13 @@ public class OrderItem {
 
     public void setSellerId(Long sellerId) {
         this.sellerId = sellerId;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
