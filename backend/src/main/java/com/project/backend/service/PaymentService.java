@@ -48,7 +48,7 @@ public class PaymentService {
 
         payment.setPaymentMethod(dto.getPaymentMethod());
         payment.setTransactionRef(dto.getTransactionRef());
-        payment.setStatus("SUCCESS");
+        payment.setStatus("PENDING");
         payment.setPaymentTime(LocalDateTime.now());
 
         payment.setNetAmount(dto.getNetAmount());
