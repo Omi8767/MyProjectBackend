@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
@@ -112,6 +114,85 @@ public class OrderService {
         return new ResponseEntity<>(saveOrder,HttpStatus.CREATED);
     }
 
+    public Map<String, Object> getOrderBySellerId(Long sellerId){
+        List<Order> orders = orderRepository.findByItemsSellerId(sellerId);
+
+        List<Payment> payments = orders.stream()
+                .map(Order::getPayment)
+                .filter(p -> p != null)
+                .toList();
+        Map<String,Object> data = new HashMap<>();
+
+        //Total Orders
+        data.put("totalOrders",orders.size());
+
+        //Total Customers
+        long totalCustomers = orders.stream()
+                .map(o -> o.getCustomer()).distinct().count();
+
+        data.put("totalCustomers",totalCustomers);
+
+        //Total Revenue
+
+        double revenue =payments.stream()
+                .filter(p->"SUCCESS".equalsIgnoreCase(p.getStatus()))
+                .mapToDouble(Payment::getNetAmount)
+                .sum();
+
+        data.put("totalRevenue",revenue);
+
+//        PENDING BOOKINGS
+
+        long pendingOrders = orders.stream()
+                .filter(o -> "PENDING".equalsIgnoreCase(o.getStatus()))
+                .count();
+
+        data.put("pendingOrders", pendingOrders);
+
+        // STATUS COUNTS
+
+        data.put("confirmed", orders.stream()
+                .filter(o -> "CONFIRMED".equalsIgnoreCase(o.getStatus()))
+                .count());
+
+        data.put("inProcess", orders.stream()
+                .filter(o -> "IN_PROCESS".equalsIgnoreCase(o.getStatus()))
+                .count());
+
+        data.put("dispatch", orders.stream()
+                .filter(o -> "DISPATCH".equalsIgnoreCase(o.getStatus()))
+                .count());
+
+        data.put("delivered", orders.stream()
+                .filter(o -> "DELIVERED".equalsIgnoreCase(o.getStatus()))
+                .count());
+
+        data.put("rejected", orders.stream()
+                .filter(o -> "REJECT".equalsIgnoreCase(o.getStatus()))
+                .count());
+
+        data.put("cancelled", orders.stream()
+                .filter(o -> "CANCELLED".equalsIgnoreCase(o.getStatus()))
+                .count());
+
+        // =========================
+        // PAYMENT STATUS
+        // =========================
+        data.put("paid", payments.stream()
+                .filter(p -> "SUCCESS".equalsIgnoreCase(p.getStatus()))
+                .count());
+
+        data.put("pendingPayments", payments.stream()
+                .filter(p -> "PENDING".equalsIgnoreCase(p.getStatus()))
+                .count());
+
+        data.put("refundPayments", payments.stream()
+                .filter(p -> "REFUNDED".equalsIgnoreCase(p.getStatus()))
+                .count());
+
+        return  data;
+    }
+
     public ResponseEntity<?> getOrderByCustomerId(Long customerId){
         List<Order> byCustomerId = orderRepository.findByCustomer_Id(customerId);
         return  new ResponseEntity<>(byCustomerId,HttpStatus.OK);
@@ -139,7 +220,7 @@ public class OrderService {
         if(payment != null && "SUCCESS".equals(payment.getStatus()) && "Card".equalsIgnoreCase(payment.getPaymentMethod())){
             try {
                 stripeService.refundPayment(payment.getTransactionRef());
-                payment.setStatus("RRFUNDED");
+                payment.setStatus("REFUNDED");
                 paymentRepository.save(payment);
             }catch(Exception e){
                 throw  new RuntimeException("Refund Failed");
@@ -175,6 +256,40 @@ public class OrderService {
         Order save = orderRepository.save(order);
         return ResponseEntity.ok(save);
     }
+
+    public List<String> getAllCities(){
+        return orderRepository.findDistinctCities();
+    }
+
+    public List<Order> filters(String fromDate,String toDate,String city){
+        LocalDateTime from = null;
+        LocalDateTime  to = null;
+
+        if(fromDate != null && !fromDate.isBlank()){
+            from = LocalDate.parse(fromDate).atStartOfDay();
+        }
+
+        if(toDate != null && !toDate.isBlank()){
+            to = LocalDate.parse(toDate).atTime(23,59,59);
+        }
+
+        boolean hasDate = from !=null && to !=null;
+        boolean hasCity = city != null&& !city.isBlank();
+
+        if(hasDate && hasCity){
+            return  orderRepository.findByOrderDateBetweenAndShippingCityIgnoreCase(from,to,city);
+        }
+
+        if(hasDate){
+            return orderRepository.findByOrderDateBetween(from,to);
+        }
+        if(hasCity){
+            return orderRepository.findByShippingCityIgnoreCase(city);
+        }
+
+        return  orderRepository.findAll();
+    }
+
 
 
     public Map<String, Object> getDashboard(){

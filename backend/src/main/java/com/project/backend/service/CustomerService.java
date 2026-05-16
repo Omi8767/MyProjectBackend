@@ -11,9 +11,13 @@ import java.util.Optional;
 @Service
 public class CustomerService {
     private final CustomerRepository customerRepository;
+    private final EmailService emailService;
+    private final OtpService otpService;
 
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(CustomerRepository customerRepository, EmailService emailService, OtpService otpService) {
         this.customerRepository = customerRepository;
+        this.emailService = emailService;
+        this.otpService = otpService;
     }
 
     public ResponseEntity<?> registration(Customer customer){
@@ -40,4 +44,34 @@ public class CustomerService {
         }
         return ResponseEntity.status(401).body("Invalid email or password");
     }
+
+    public void sendOtp(String email) {
+
+        Customer user = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email not registered"));
+
+        String otp = otpService.generateOtp(email);
+
+        emailService.sendOtp(email, otp);
+    }
+
+    public void verifyOtp(String email, String otp) {
+        boolean isValid = otpService.verifyOtp(email, otp);
+
+        if (!isValid) {
+            throw new RuntimeException("Invalid OTP");
+        }
+    }
+
+    public void resetPassword(String email, String newPassword) {
+
+        Customer user = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setPassword(newPassword); // later use encoder
+        customerRepository.save(user);
+
+        otpService.clearOtp(email); // cleanup
+    }
+
 }

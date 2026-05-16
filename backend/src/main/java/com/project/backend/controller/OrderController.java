@@ -28,6 +28,14 @@ public class OrderController {
         return orderService.getOrderByCustomerId(customerId);
     }
 
+    //newly added
+
+    @GetMapping("/{sellerId}/seller")
+    public ResponseEntity<Map<String,Object>> getOrderBySellerId(@PathVariable Long sellerId){
+        Map<String, Object> orderBySellerId = orderService.getOrderBySellerId(sellerId);
+        return ResponseEntity.ok(orderBySellerId);
+    }
+
     @PutMapping("/{orderId}/cancel")
     public ResponseEntity<Order> cancleOrder(@PathVariable Long orderId){
         Order order = orderService.cancleOrder((orderId));
@@ -48,6 +56,22 @@ public class OrderController {
     public ResponseEntity<Map<String,Object>> getDashboard(){
         Map<String, Object> dashboard = orderService.getDashboard();
         return  ResponseEntity.ok(dashboard);
+    }
+
+    @GetMapping("/cities")
+    public ResponseEntity<List<String>> getAllCities(){
+        List<String> allCities = orderService.getAllCities();
+        return  ResponseEntity.ok(allCities);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Order>> filterOrders(
+            @RequestParam(required = false) String from,
+            @RequestParam(required = false) String to,
+            @RequestParam(required = false) String city
+    ){
+        List<Order> filters = orderService.filters(from, to, city);
+        return ResponseEntity.ok(filters);
     }
 }
 
